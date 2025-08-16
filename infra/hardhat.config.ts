@@ -4,6 +4,12 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
+function requireEnv(key: string): string {
+  const v = process.env[key];
+  if (!v) throw new Error(`Missing required env var ${key}. Set it in .env`);
+  return v;
+}
+
 const config: HardhatUserConfig = {
   solidity: {
     version: "0.8.24",
@@ -11,19 +17,19 @@ const config: HardhatUserConfig = {
   },
   networks: {
     flowEvmTestnet: {
-      url: process.env.RPC_FLOW_EVM!,
+      url: requireEnv("RPC_FLOW_EVM"),
       type: "http",
-      accounts: [process.env.PRIVATE_KEY_FLOW!],
+      accounts: [requireEnv("PRIVATE_KEY_FLOW")],
     },
     sepolia: {
-      url: process.env.RPC_SEPOLIA!,
+      url: requireEnv("RPC_SEPOLIA"),
       type: "http",
-      accounts: [process.env.PRIVATE_KEY_SEPOLIA!],
+      accounts: [requireEnv("PRIVATE_KEY_SEPOLIA")],
     },
     polygonAmoy: {
-      url: process.env.RPC_POLYGON_AMOY!,
+      url: requireEnv("RPC_POLYGON_AMOY"),
       type: "http",
-      accounts: [process.env.PRIVATE_KEY_POLYGON!],
+      accounts: [requireEnv("PRIVATE_KEY_POLYGON")],
     },
   },
 };
