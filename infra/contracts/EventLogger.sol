@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.23;
+pragma solidity ^0.8.28;
 
 contract EventLogger {
     event FlowCreated(bytes32 indexed flowId, bytes32 indexed companyId, string metadataURI, address creator);
