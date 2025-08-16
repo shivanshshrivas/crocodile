@@ -1,42 +1,15 @@
-import type { HardhatUserConfig } from "hardhat/config";
-
-import hardhatToolboxViemPlugin from "@nomicfoundation/hardhat-toolbox-viem";
-import { configVariable } from "hardhat/config";
+import { HardhatUserConfig } from "hardhat/config";
+import hardhatViem from "@nomicfoundation/hardhat-viem";
+import dotenv from "dotenv";
+dotenv.config();
 
 const config: HardhatUserConfig = {
-  plugins: [hardhatToolboxViemPlugin],
-  solidity: {
-    profiles: {
-      default: {
-        version: "0.8.28",
-      },
-      production: {
-        version: "0.8.28",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 200,
-          },
-        },
-      },
-    },
-  },
+  plugins: [hardhatViem],         
+  solidity: { version: "0.8.28" },
   networks: {
-    hardhatMainnet: {
-      type: "edr-simulated",
-      chainType: "l1",
-    },
-    hardhatOp: {
-      type: "edr-simulated",
-      chainType: "op",
-    },
-    sepolia: {
-      type: "http",
-      chainType: "l1",
-      url: configVariable("SEPOLIA_RPC_URL"),
-      accounts: [configVariable("SEPOLIA_PRIVATE_KEY")],
-    },
+    polygonAmoy: { type: "http", url: process.env.RPC_POLYGON_AMOY!, accounts: [process.env.PRIVATE_KEY_POLYGON!], chainId: 80002 },
+    sepolia:     { type: "http", url: process.env.RPC_SEPOLIA!, accounts: [process.env.PRIVATE_KEY_SEPOLIA!], chainId: 11155111 },
+    flowEvm:     { type: "http", url: process.env.RPC_FLOW_EVM!, accounts: [process.env.PRIVATE_KEY_FLOW!], chainId: 545 },
   },
 };
-
 export default config;
