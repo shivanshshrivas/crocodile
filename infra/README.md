@@ -1,30 +1,57 @@
-# infra
+# Sample Hardhat 3 Beta Project (`node:test` and `viem`)
 
-This folder contains Hardhat + viem deployment scripts for the project.
+This project showcases a Hardhat 3 Beta project using the native Node.js test runner (`node:test`) and the `viem` library for Ethereum interactions.
 
-## Required environment variables
-Create a `.env` file inside `infra/` with at least the following keys:
+To learn more about the Hardhat 3 Beta, please visit the [Getting Started guide](https://hardhat.org/docs/getting-started#getting-started-with-hardhat-3). To share your feedback, join our [Hardhat 3 Beta](https://hardhat.org/hardhat3-beta-telegram-group) Telegram group or [open an issue](https://github.com/NomicFoundation/hardhat/issues/new) in our GitHub issue tracker.
 
-- `PRIVATE_KEY_FLOW` or `PRIVATE_KEY` - hex private key of deployer (0x...)
-- `FLOW_EVM_RPC_URL` - RPC URL for Flow EVM Testnet
-- `RPC_FLOW_EVM` - (used by hardhat network config)
-- `PRIVATE_KEY_FLOW` - (used by hardhat network config)
+## Project Overview
 
-Optional network envs used in `hardhat.config.ts`:
-- `RPC_SEPOLIA`, `PRIVATE_KEY_SEPOLIA`
-- `RPC_POLYGON_AMOY`, `PRIVATE_KEY_POLYGON`
+This example project includes:
 
-## Common commands
-From `infra/` folder run:
+- A simple Hardhat configuration file.
+- Foundry-compatible Solidity unit tests.
+- TypeScript integration tests using [`node:test`](nodejs.org/api/test.html), the new Node.js native test runner, and [`viem`](https://viem.sh/).
+- Examples demonstrating how to connect to different types of networks, including locally simulating OP mainnet.
 
-```powershell
-# compile
-npx hardhat compile
+## Usage
 
-# run deploy script (uses env vars)
-npx hardhat run scripts/deployFlowHub.ts --network flowEvmTestnet
+### Running Tests
+
+To run all the tests in the project, execute the following command:
+
+```shell
+npx hardhat test
 ```
 
-## Notes
-- The deploy script is idempotent and will write `deployments/flowhub.json` with metadata after a successful deploy.
-- The repo uses `viem` for wallet + deployment; ensure the `.env` keys are present before running scripts.
+You can also selectively run the Solidity or `node:test` tests:
+
+```shell
+npx hardhat test solidity
+npx hardhat test nodejs
+```
+
+### Make a deployment to Sepolia
+
+This project includes an example Ignition module to deploy the contract. You can deploy this module to a locally simulated chain or to Sepolia.
+
+To run the deployment to a local chain:
+
+```shell
+npx hardhat ignition deploy ignition/modules/Counter.ts
+```
+
+To run the deployment to Sepolia, you need an account with funds to send the transaction. The provided Hardhat configuration includes a Configuration Variable called `SEPOLIA_PRIVATE_KEY`, which you can use to set the private key of the account you want to use.
+
+You can set the `SEPOLIA_PRIVATE_KEY` variable using the `hardhat-keystore` plugin or by setting it as an environment variable.
+
+To set the `SEPOLIA_PRIVATE_KEY` config variable using `hardhat-keystore`:
+
+```shell
+npx hardhat keystore set SEPOLIA_PRIVATE_KEY
+```
+
+After setting the variable, you can run the deployment with the Sepolia network:
+
+```shell
+npx hardhat ignition deploy --network sepolia ignition/modules/Counter.ts
+```

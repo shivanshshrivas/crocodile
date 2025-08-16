@@ -1,35 +1,41 @@
-import { HardhatUserConfig } from "hardhat/config";
-import "@nomicfoundation/hardhat-viem";
-import * as dotenv from "dotenv";
-
-dotenv.config();
-
-function requireEnv(key: string): string {
-  const v = process.env[key];
-  if (!v) throw new Error(`Missing required env var ${key}. Set it in .env`);
-  return v;
-}
+import type { HardhatUserConfig } from "hardhat/config";
+import hardhatToolboxViemPlugin from "@nomicfoundation/hardhat-toolbox-viem";
+import ignitionViem from "@nomicfoundation/hardhat-ignition-viem"; // + add
+import { configVariable } from "hardhat/config";
 
 const config: HardhatUserConfig = {
+  plugins: [hardhatToolboxViemPlugin, ignitionViem], // + add ignition
   solidity: {
-    version: "0.8.24",
-    settings: { optimizer: { enabled: true, runs: 200 } },
+    profiles: {
+      default: { version: "0.8.20" },
+      production: {
+        version: "0.8.20",
+        settings: { optimizer: { enabled: true, runs: 200 } },
+      },
+    },
   },
   networks: {
-    flowEvmTestnet: {
-      url: requireEnv("RPC_FLOW_EVM"),
-      type: "http",
-      accounts: [requireEnv("PRIVATE_KEY_FLOW")],
-    },
+    hardhatMainnet: { type: "edr-simulated", chainType: "l1" },
+    hardhatOp: { type: "edr-simulated", chainType: "op" },
     sepolia: {
-      url: requireEnv("RPC_SEPOLIA"),
       type: "http",
-      accounts: [requireEnv("PRIVATE_KEY_SEPOLIA")],
+      chainType: "l1",
+      url: configVariable("SEPOLIA_RPC_URL"),
+      accounts: [configVariable("SEPOLIA_PRIVATE_KEY")],
     },
-    polygonAmoy: {
-      url: requireEnv("RPC_POLYGON_AMOY"),
+    // + Flow EVM testnet
+    flowEvmTestnet: {
       type: "http",
-      accounts: [requireEnv("PRIVATE_KEY_POLYGON")],
+      chainType: "l1",
+      url: configVariable("FLOW_EVM_RPC_URL"),
+      accounts: [configVariable("FLOW_EVM_PRIVATE_KEY")],
+    },
+    // + Polygon Amoy
+    amoy: {
+      type: "http",
+      chainType: "l1",
+      url: configVariable("AMOY_RPC_URL"),
+      accounts: [configVariable("AMOY_PRIVATE_KEY")],
     },
   },
 };
