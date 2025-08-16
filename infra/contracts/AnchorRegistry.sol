@@ -13,12 +13,7 @@ contract AnchorRegistry {
 
     mapping(uint256 => bytes32) public latestRootByWorkspace;
 
-    function anchor(
-        uint256 workspaceId,
-        bytes32 root,
-        string calldata batchCid,
-        uint256 batchNo
-    ) external {
+    function anchor(uint256 workspaceId, bytes32 root, string calldata batchCid, uint256 batchNo) external {
         latestRootByWorkspace[workspaceId] = root;
         emit Anchored(workspaceId, root, batchCid, msg.sender, batchNo, block.timestamp);
     }
