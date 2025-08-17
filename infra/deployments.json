@@ -1,0 +1,5 @@
+{
+  "flowMainnet": { "HubRegistry": "0xda160de7fA570461fda3C3dE8F8c3006a35bC3f1" },
+  "sepolia":     { "SpokeRegistry": "0x66B4f692a38dBa3919CC0aa8d9Fa7AC6946193f0" },
+  "polygonAmoy": { "SpokeRegistry": "0x7361d72B3c09851CD54f472dF78d38E5F7450B0C" }
+}

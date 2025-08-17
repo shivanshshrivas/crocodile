@@ -1,0 +1,34 @@
+{
+  "chains": {
+    "sepolia": {
+      "name": "sepolia",
+      "domain": 11155111,
+      "protocol": "ethereum",
+      "rpcUrls": [{ "http": "https://ethereum-sepolia-rpc.publicnode.com" }],
+      "mailbox": "0xfFAEF09B3cd11D9b20d1a19bECca54EEC2884766"
+    },
+    "polygonamoy": {
+      "name": "polygonamoy",
+      "domain": 80002,
+      "protocol": "ethereum",
+      "rpcUrls": [{ "http": "https://rpc-amoy.polygon.technology" }],
+      "mailbox": "0x54148470292C24345fb828B003461a9444414517"
+    },
+    "evm-on-flow": {
+      "name": "evm-on-flow",
+      "domain": 1000000747,
+      "protocol": "ethereum",
+      "rpcUrls": [{ "http": "https://mainnet.evm.nodes.onflow.org" }],
+      "mailbox": "0xd9Cc2e652A162bb93173d1c44d46cd2c0bbDA59D"
+    }
+  },
+  "relayer": {
+    "defaultSigner": {
+      "type": "hexKey",
+      "key": "0x2ab899ef352da5b40d0d55625c0a13a8f530055adfd7a65f62529e81558da348"
+    },
+    "allowLocalCheckpointSyncers": true,
+    "metricsPort": 9090
+  },
+  "db": "/hyperlane_db"
+}

@@ -1,0 +1,39 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-a08a15811b45016553836dc8eeff92c37cf4d848",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/HubRegistry.sol": "project/contracts/HubRegistry.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/HubRegistry.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.28;\r\n\r\n/// @title HubRegistry (Flow EVM): canonical log + cross-chain receipts\r\ncontract HubRegistry {\r\n    struct LogData {\r\n        address author;\r\n        bytes32 contentHash;   // hash/pointer to your data payload (e.g., IPFS, Arweave)\r\n        uint256 timestamp;\r\n        string  metadata;      // lightweight string metadata\r\n    }\r\n\r\n    /// @dev originKey = keccak256(abi.encode(originChainId, originTxHash))\r\n    mapping(bytes32 => bool) public receiptSeen;\r\n\r\n    /// @dev hub logs keyed by a user-supplied or off-chain generated ID\r\n    mapping(bytes32 => LogData) public logs;\r\n\r\n    event HubLogPushed(bytes32 indexed logId, address indexed author, bytes32 contentHash, string metadata);\r\n    event ReceiptRecorded(uint256 indexed originChainId, bytes32 indexed originTxHash);\r\n\r\n    function pushHubLog(bytes32 logId, bytes32 contentHash, string calldata metadata) external {\r\n        logs[logId] = LogData({\r\n            author: msg.sender,\r\n            contentHash: contentHash,\r\n            timestamp: block.timestamp,\r\n            metadata: metadata\r\n        });\r\n        emit HubLogPushed(logId, msg.sender, contentHash, metadata);\r\n    }\r\n\r\n    /// @notice Called when a spoke reports it pushed a block/log on its chain.\r\n    /// @dev For now trustless only by convention; we’ll gate via Hyperlane ISM in the next step.\r\n    function recordReceipt(uint256 originChainId, bytes32 originTxHash) external {\r\n        bytes32 key = keccak256(abi.encode(originChainId, originTxHash));\r\n        require(!receiptSeen[key], \"duplicate\");\r\n        receiptSeen[key] = true;\r\n        emit ReceiptRecorded(originChainId, originTxHash);\r\n    }\r\n}\r\n"
+      }
+    }
+  }
+}

@@ -1,30 +1,36 @@
 {
   "name": "infra",
   "version": "1.0.0",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "type": "module",
-  "description": "",
-  "dependencies": {
-    "@layerzerolabs/oapp-evm": "^0.3.2",
-    "hardhat": "^3.0.0"
-  },
   "devDependencies": {
-    "@layerzerolabs/lz-evm-oapp-v2": "^3.0.124",
-    "@layerzerolabs/lz-evm-protocol-v2": "^3.0.125",
     "@nomicfoundation/hardhat-ignition": "^3.0.0",
     "@nomicfoundation/hardhat-toolbox-viem": "^5.0.0",
-    "@nomicfoundation/hardhat-viem": "^3.0.0",
-    "@openzeppelin/contracts": "^5.4.0",
     "@types/node": "^22.17.2",
-    "dotenv": "^17.2.1",
     "forge-std": "github:foundry-rs/forge-std#v1.9.4",
+    "hardhat": "^3.0.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.20.4",
     "typescript": "~5.8.0",
     "viem": "^2.33.3"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.1"
+  },
+  "scripts": {
+    "clean": "hardhat clean",
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:hub:flow": "hardhat ignition deploy ./ignition/modules/Hub.ts --network flowMainnet",
+    "deploy:spoke:sepolia": "hardhat ignition deploy ./ignition/modules/Spoke.ts --network sepolia",
+    "deploy:spoke:amoy": "hardhat ignition deploy ./ignition/modules/Spoke.ts --network polygonAmoy",
+    "hub:push": "tsx scripts/pushHubLog.ts",
+    "spoke:push:sepolia": "tsx scripts/pushSpokeLog.ts sepolia",
+    "spoke:push:amoy": "tsx scripts/pushSpokeLog.ts polygonAmoy",
+    "read:hub": "tsx scripts/readHubEvents.ts",
+    "read:spoke:sepolia": "tsx scripts/readSpokeEvents.ts sepolia",
+    "read:spoke:amoy": "tsx scripts/readSpokeEvents.ts polygonAmoy",
+    "relayer": "hyperlane relayer --config ./agent-config.json --relayChains sepolia,polygon-amoy,evm-on-flow",
+    "mirror:once": "tsx scripts/mirrorSpokesToFlow.ts",
+    "mirror:watch": "node -e \"setInterval(()=>{}, 1<<30)\""
   }
 }

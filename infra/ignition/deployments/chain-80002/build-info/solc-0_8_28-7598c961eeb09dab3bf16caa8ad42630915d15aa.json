@@ -1,0 +1,39 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-7598c961eeb09dab3bf16caa8ad42630915d15aa",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/SpokeRegistry.sol": "project/contracts/SpokeRegistry.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/SpokeRegistry.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.28;\r\n\r\ninterface IMailbox {\r\n    function dispatch(uint32 destinationDomain, bytes32 recipient, bytes calldata messageBody)\r\n        external\r\n        payable\r\n        returns (bytes32);\r\n}\r\n\r\ncontract SpokeRegistry {\r\n    address public admin;\r\n    IMailbox public mailbox;\r\n    uint32   public flowDomain;\r\n    address  public hubRecipient; // HubRegistry on Flow\r\n\r\n    struct SpokeLog {\r\n        address author;\r\n        bytes32 contentHash;\r\n        uint256 timestamp;\r\n        string  metadata;\r\n    }\r\n\r\n    mapping(bytes32 => SpokeLog) public logs;\r\n\r\n    event SpokeLogPushed(bytes32 indexed logId, address indexed author, bytes32 contentHash, string metadata);\r\n    event SpokeDispatched(bytes32 indexed logId, bytes32 messageId, uint32 flowDomain, address hubRecipient);\r\n\r\n    modifier onlyAdmin() { require(msg.sender == admin, \"not admin\"); _; }\r\n\r\n    constructor(address _mailbox, uint32 _flowDomain, address _hubRecipient) {\r\n        admin = msg.sender;\r\n        mailbox = IMailbox(_mailbox);\r\n        flowDomain = _flowDomain;\r\n        hubRecipient = _hubRecipient;\r\n    }\r\n\r\n    function setHyperlane(address _mailbox, uint32 _flowDomain, address _hubRecipient) external onlyAdmin {\r\n        mailbox = IMailbox(_mailbox);\r\n        flowDomain = _flowDomain;\r\n        hubRecipient = _hubRecipient;\r\n    }\r\n\r\n    function pushSpokeLog(bytes32 logId, bytes32 contentHash, string calldata metadata) external payable {\r\n        logs[logId] = SpokeLog({ author: msg.sender, contentHash: contentHash, timestamp: block.timestamp, metadata: metadata });\r\n        emit SpokeLogPushed(logId, msg.sender, contentHash, metadata);\r\n\r\n        bytes memory body = abi.encode(logId, contentHash, metadata, msg.sender);\r\n        bytes32 hubRecipientBytes32 = bytes32(uint256(uint160(hubRecipient)));\r\n\r\n        bytes32 messageId = mailbox.dispatch{ value: msg.value }(flowDomain, hubRecipientBytes32, body);\r\n        emit SpokeDispatched(logId, messageId, flowDomain, hubRecipient);\r\n    }\r\n}\r\n"
+      }
+    }
+  }
+}

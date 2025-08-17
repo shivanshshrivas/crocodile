@@ -1,0 +1,39 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-8da949347a2825f5420671b0c6569a197986ffa2",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/HubRegistry.sol": "project/contracts/HubRegistry.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/HubRegistry.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.28;\r\n\r\n/// @title HubRegistry (Flow EVM): canonical log + Hyperlane receiver + off-chain mirror\r\ncontract HubRegistry {\r\n    // --- config ---\r\n    address public immutable mailbox; // Hyperlane Mailbox on Flow (for trustless path)\r\n    address public admin;\r\n\r\n    // --- storage ---\r\n    struct LogData {\r\n        address author;\r\n        bytes32 contentHash;\r\n        uint256 timestamp;\r\n        string  metadata;\r\n    }\r\n\r\n    // canonical logs by user-supplied logId\r\n    mapping(bytes32 => LogData) public logs;\r\n\r\n    // Hyperlane dedupe: key = keccak256(originDomain, senderBytes32, logId)\r\n    mapping(bytes32 => bool) public seen;\r\n\r\n    // Off-chain mirror dedupe: key = keccak256(originDomain, logId)\r\n    mapping(bytes32 => bool) private offchainSeen;\r\n\r\n    // --- events ---\r\n    event HubLogPushed(bytes32 indexed logId, address indexed author, bytes32 contentHash, string metadata);\r\n    event ReceiptRecorded(uint32 indexed origin, address indexed sender, bytes32 indexed logId);\r\n    event OffchainReceiptRecorded(uint32 indexed origin, bytes32 indexed logId, address author);\r\n\r\n    // --- modifiers ---\r\n    modifier onlyAdmin() { require(msg.sender == admin, \"not admin\"); _; }\r\n    modifier onlyMailbox() { require(msg.sender == mailbox, \"sender not mailbox\"); _; }\r\n\r\n    // --- init ---\r\n    constructor(address _mailbox) {\r\n        mailbox = _mailbox;\r\n        admin = msg.sender;\r\n    }\r\n\r\n    function setAdmin(address _admin) external onlyAdmin {\r\n        admin = _admin;\r\n    }\r\n\r\n    // --- direct writes on Flow (optional) ---\r\n    function pushHubLog(bytes32 logId, bytes32 contentHash, string calldata metadata) external {\r\n        logs[logId] = LogData({\r\n            author: msg.sender,\r\n            contentHash: contentHash,\r\n            timestamp: block.timestamp,\r\n            metadata: metadata\r\n        });\r\n        emit HubLogPushed(logId, msg.sender, contentHash, metadata);\r\n    }\r\n\r\n    // --- Hyperlane receive hook (trustless path) ---\r\n    // message body = abi.encode(logId, contentHash, metadata, author)\r\n    function handle(\r\n        uint32 _origin,\r\n        bytes32 _sender,\r\n        bytes calldata _messageBody\r\n    ) external onlyMailbox {\r\n        (bytes32 logId, bytes32 contentHash, string memory metadata, address author) =\r\n            abi.decode(_messageBody, (bytes32, bytes32, string, address));\r\n\r\n        bytes32 key = keccak256(abi.encode(_origin, _sender, logId));\r\n        require(!seen[key], \"duplicate\");\r\n        seen[key] = true;\r\n\r\n        logs[logId] = LogData({\r\n            author: author,\r\n            contentHash: contentHash,\r\n            timestamp: block.timestamp,\r\n            metadata: metadata\r\n        });\r\n\r\n        emit HubLogPushed(logId, author, contentHash, metadata);\r\n        emit ReceiptRecorded(_origin, _bytes32ToAddress(_sender), logId);\r\n    }\r\n\r\n    // --- off-chain mirror helpers (trusted admin path) ---\r\n\r\n    /// @notice Check if an off-chain receipt (origin, logId) has already been recorded.\r\n    function hasOffchainReceipt(uint32 origin, bytes32 logId) external view returns (bool) {\r\n        return offchainSeen[keccak256(abi.encode(origin, logId))];\r\n    }\r\n\r\n    /// @notice Admin-only mirror of a spoke write without bridge delivery.\r\n    /// Mirrors the same shape as `handle(...)` and emits HubLogPushed + OffchainReceiptRecorded.\r\n    function recordReceiptFromOffchain(\r\n        uint32 origin,\r\n        bytes32 logId,\r\n        bytes32 contentHash,\r\n        string calldata metadata,\r\n        address author\r\n    ) external onlyAdmin {\r\n        bytes32 key = keccak256(abi.encode(origin, logId));\r\n        require(!offchainSeen[key], \"duplicate\");\r\n        offchainSeen[key] = true;\r\n\r\n        logs[logId] = LogData({\r\n            author: author,\r\n            contentHash: contentHash,\r\n            timestamp: block.timestamp,\r\n            metadata: metadata\r\n        });\r\n\r\n        emit HubLogPushed(logId, author, contentHash, metadata);\r\n        emit OffchainReceiptRecorded(origin, logId, author);\r\n    }\r\n\r\n    // --- utils ---\r\n    function _bytes32ToAddress(bytes32 b) internal pure returns (address) {\r\n        return address(uint160(uint256(b)));\r\n    }\r\n}\r\n"
+      }
+    }
+  }
+}
