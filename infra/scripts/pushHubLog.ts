@@ -1,3 +1,4 @@
+import "dotenv/config";
 import { createPublicClient, createWalletClient, http, parseAbi, keccak256, toHex } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import deployments from "../deployments.json";
@@ -8,11 +9,18 @@ const abi = parseAbi([
 ]);
 
 async function main() {
-  const rpc = process.env.FLOW_MAINNET_RPC!;
-  const pk  = process.env.FLOW_MAINNET_PRIVATE_KEY! as `0x${string}`;
-  const hub = (deployments as any).flowMainnet.HubRegistry as `0x${string}`;
+  const rpc = process.env.FLOW_MAINNET_RPC;
+  let pk = process.env.FLOW_MAINNET_PRIVATE_KEY;
+  const hub = (deployments as any).flowMainnet?.HubRegistry as `0x${string}` | undefined;
 
-  const account = privateKeyToAccount(pk);
+  if (!rpc) throw new Error("FLOW_MAINNET_RPC is not set in .env");
+  if (!pk) throw new Error("FLOW_MAINNET_PRIVATE_KEY is not set in .env");
+  if (!hub) throw new Error("HubRegistry address for flowMainnet not found in deployments.json");
+
+  if (!pk.startsWith("0x")) pk = `0x${pk}`;
+  const pkHex = pk as `0x${string}`;
+
+  const account = privateKeyToAccount(pkHex);
   const client = createWalletClient({ account, transport: http(rpc) });
 
   const logId = keccak256(toHex(`demo-${Date.now()}`));

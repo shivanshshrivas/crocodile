@@ -9,6 +9,7 @@
     "forge-std": "github:foundry-rs/forge-std#v1.9.4",
     "hardhat": "^3.0.0",
     "ts-node": "^10.9.2",
+    "tsx": "^4.20.4",
     "typescript": "~5.8.0",
     "viem": "^2.33.3"
   },
@@ -22,8 +23,11 @@
     "deploy:hub:flow": "hardhat ignition deploy ./ignition/modules/Hub.ts --network flowMainnet",
     "deploy:spoke:sepolia": "hardhat ignition deploy ./ignition/modules/Spoke.ts --network sepolia",
     "deploy:spoke:amoy": "hardhat ignition deploy ./ignition/modules/Spoke.ts --network polygonAmoy",
-    "hub:push": "npx ts-node scripts/pushHubLog.ts",
-    "spoke:push:sepolia": "npx ts-node scripts/pushSpokeLog.ts sepolia",
-    "spoke:push:amoy": "npx ts-node scripts/pushSpokeLog.ts polygonAmoy"
+    "hub:push": "tsx scripts/pushHubLog.ts",
+    "spoke:push:sepolia": "tsx scripts/pushSpokeLog.ts sepolia",
+    "spoke:push:amoy": "tsx scripts/pushSpokeLog.ts polygonAmoy",
+    "read:hub": "tsx scripts/readHubEvents.ts",
+    "read:spoke:sepolia": "tsx scripts/readSpokeEvents.ts sepolia",
+    "read:spoke:amoy": "tsx scripts/readSpokeEvents.ts polygonAmoy"
   }
 }
