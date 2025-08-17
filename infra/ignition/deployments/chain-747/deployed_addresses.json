@@ -1,3 +1,6 @@
 {
-  "HubModule#HubRegistry": "0xd8f6C599759B1187D9BA77AB32F1Ee3F4198Ea9F"
+  "HubModule#HubRegistry": "0xd8f6C599759B1187D9BA77AB32F1Ee3F4198Ea9F",
+  "HubMailboxModule#HubRegistry": "0x52c661a8F7cC06B64D1E27D93fF163Bc930Ae399",
+  "HubModuleMailbox#HubRegistry": "0x05258C5F855BBeFC748634723f7555b3F0363D78",
+  "HubOffchainModule#HubRegistry": "0xda160de7fA570461fda3C3dE8F8c3006a35bC3f1"
 }

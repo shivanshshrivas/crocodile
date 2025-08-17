@@ -1,0 +1,39 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-d978ebf9b0f7eda6bffd25f3eff4690d1f368792",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/HubRegistry.sol": "project/contracts/HubRegistry.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/HubRegistry.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.28;\r\n\r\n/// @title HubRegistry (Flow EVM): canonical log + Hyperlane receiver\r\ncontract HubRegistry {\r\n    address public immutable mailbox; // Hyperlane Mailbox on Flow\r\n    address public admin;\r\n\r\n    struct LogData {\r\n        address author;\r\n        bytes32 contentHash;\r\n        uint256 timestamp;\r\n        string  metadata;\r\n    }\r\n\r\n    mapping(bytes32 => LogData) public logs;\r\n    mapping(bytes32 => bool) public seen;\r\n\r\n    event HubLogPushed(bytes32 indexed logId, address indexed author, bytes32 contentHash, string metadata);\r\n    event ReceiptRecorded(uint32 indexed origin, address indexed sender, bytes32 indexed logId);\r\n\r\n    modifier onlyAdmin() { require(msg.sender == admin, \"not admin\"); _; }\r\n    modifier onlyMailbox() { require(msg.sender == mailbox, \"sender not mailbox\"); _; }\r\n\r\n    constructor(address _mailbox) {\r\n        mailbox = _mailbox;\r\n        admin = msg.sender;\r\n    }\r\n\r\n    function setAdmin(address _admin) external onlyAdmin { admin = _admin; }\r\n\r\n    // Direct writes on Flow (optional)\r\n    function pushHubLog(bytes32 logId, bytes32 contentHash, string calldata metadata) external {\r\n        logs[logId] = LogData({ author: msg.sender, contentHash: contentHash, timestamp: block.timestamp, metadata: metadata });\r\n        emit HubLogPushed(logId, msg.sender, contentHash, metadata);\r\n    }\r\n\r\n    // Hyperlane receive hook\r\n    // message body = abi.encode(logId, contentHash, metadata, author)\r\n    function handle(uint32 _origin, bytes32 _sender, bytes calldata _messageBody) external onlyMailbox {\r\n        (bytes32 logId, bytes32 contentHash, string memory metadata, address author) =\r\n            abi.decode(_messageBody, (bytes32, bytes32, string, address));\r\n\r\n        bytes32 key = keccak256(abi.encode(_origin, _sender, logId));\r\n        require(!seen[key], \"duplicate\");\r\n        seen[key] = true;\r\n\r\n        logs[logId] = LogData({ author: author, contentHash: contentHash, timestamp: block.timestamp, metadata: metadata });\r\n        emit HubLogPushed(logId, author, contentHash, metadata);\r\n        emit ReceiptRecorded(_origin, _bytes32ToAddress(_sender), logId);\r\n    }\r\n\r\n    function _bytes32ToAddress(bytes32 b) internal pure returns (address) {\r\n        return address(uint160(uint256(b)));\r\n    }\r\n}\r\n"
+      }
+    }
+  }
+}

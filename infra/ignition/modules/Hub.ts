@@ -1,8 +1,7 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
-const HubModule = buildModule("HubModule", (m) => {
-  const hub = m.contract("HubRegistry");
+export default buildModule("HubOffchainModule", (m) => {
+  const MAILBOX = m.getParameter("MAILBOX"); // use your Flow mailbox (even if unused by watcher)
+  const hub = m.contract("HubRegistry", [MAILBOX]);
   return { hub };
 });
-
-export default HubModule;

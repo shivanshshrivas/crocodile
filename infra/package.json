@@ -28,6 +28,9 @@
     "spoke:push:amoy": "tsx scripts/pushSpokeLog.ts polygonAmoy",
     "read:hub": "tsx scripts/readHubEvents.ts",
     "read:spoke:sepolia": "tsx scripts/readSpokeEvents.ts sepolia",
-    "read:spoke:amoy": "tsx scripts/readSpokeEvents.ts polygonAmoy"
+    "read:spoke:amoy": "tsx scripts/readSpokeEvents.ts polygonAmoy",
+    "relayer": "hyperlane relayer --config ./agent-config.json --relayChains sepolia,polygon-amoy,evm-on-flow",
+    "mirror:once": "tsx scripts/mirrorSpokesToFlow.ts",
+    "mirror:watch": "node -e \"setInterval(()=>{}, 1<<30)\""
   }
 }

@@ -1,3 +1,4 @@
 {
-  "SpokeModule#SpokeRegistry": "0x0aBF22f0251ef215eF62DC3Db645660d7bA189fa"
+  "SpokeModule#SpokeRegistry": "0x0aBF22f0251ef215eF62DC3Db645660d7bA189fa",
+  "SpokeMailboxModule#SpokeRegistry": "0x7361d72B3c09851CD54f472dF78d38E5F7450B0C"
 }
