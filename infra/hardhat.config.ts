@@ -1,43 +1,44 @@
-import type { HardhatUserConfig } from "hardhat/config";
-import hardhatToolboxViemPlugin from "@nomicfoundation/hardhat-toolbox-viem";
-import ignitionViem from "@nomicfoundation/hardhat-ignition-viem"; // + add
-import { configVariable } from "hardhat/config";
+import { HardhatUserConfig } from "hardhat/config";
+import "@nomicfoundation/hardhat-toolbox-viem";
+import "@nomicfoundation/hardhat-ignition";
+import * as dotenv from "dotenv";
+dotenv.config();
+
+// Per-network private keys from .env
+const FLOW_MAINNET_PRIVATE_KEY = process.env
+  .FLOW_MAINNET_PRIVATE_KEY as `0x${string}` | undefined;
+const SEPOLIA_TESTNET_PRIVATE_KEY = process.env
+  .SEPOLIA_TESTNET_PRIVATE_KEY as `0x${string}` | undefined;
+const AMOY_TESTNET_PRIVATE_KEY = process.env
+  .AMOY_TESTNET_PRIVATE_KEY as `0x${string}` | undefined;
 
 const config: HardhatUserConfig = {
-  plugins: [hardhatToolboxViemPlugin, ignitionViem], // + add ignition
   solidity: {
-    profiles: {
-      default: { version: "0.8.20" },
-      production: {
-        version: "0.8.20",
-        settings: { optimizer: { enabled: true, runs: 200 } },
-      },
-    },
+    version: "0.8.28",
+    settings: {
+      optimizer: { enabled: true, runs: 200 }
+    }
   },
   networks: {
-    hardhatMainnet: { type: "edr-simulated", chainType: "l1" },
-    hardhatOp: { type: "edr-simulated", chainType: "op" },
+    // Hardhat v3 requires explicit type for RPC networks
+    flowMainnet: {
+      type: "http",
+      url: process.env.FLOW_MAINNET_RPC || "",
+      accounts: FLOW_MAINNET_PRIVATE_KEY ? [FLOW_MAINNET_PRIVATE_KEY] : []
+    },
     sepolia: {
       type: "http",
-      chainType: "l1",
-      url: configVariable("SEPOLIA_RPC_URL"),
-      accounts: [configVariable("SEPOLIA_PRIVATE_KEY")],
+      url: process.env.SEPOLIA_TESTNET_RPC || "",
+      accounts: SEPOLIA_TESTNET_PRIVATE_KEY
+        ? [SEPOLIA_TESTNET_PRIVATE_KEY]
+        : []
     },
-    // + Flow EVM testnet
-    flowEvmTestnet: {
+    polygonAmoy: {
       type: "http",
-      chainType: "l1",
-      url: configVariable("FLOW_EVM_RPC_URL"),
-      accounts: [configVariable("FLOW_EVM_PRIVATE_KEY")],
-    },
-    // + Polygon Amoy
-    amoy: {
-      type: "http",
-      chainType: "l1",
-      url: configVariable("AMOY_RPC_URL"),
-      accounts: [configVariable("AMOY_PRIVATE_KEY")],
-    },
-  },
+      url: process.env.AMOY_TESTNET_RPC || "",
+      accounts: AMOY_TESTNET_PRIVATE_KEY ? [AMOY_TESTNET_PRIVATE_KEY] : []
+    }
+  }
 };
 
 export default config;
